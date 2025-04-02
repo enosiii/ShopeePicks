@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Shopee Picks</title>
 <link rel="icon" href="SP192.png" type="image/png">
 <link rel="manifest" href="manifest.json">
@@ -24,9 +26,9 @@
   html, body {
     margin: 0;
     padding: 0;
-    height: 100%; /* Ensure full height */
-    width: 100%; /* Ensure full width */
-    overflow: hidden; /* Prevent scrollbars */
+    height: 100%; 
+    width: 100%;
+    overflow: hidden; 
   }
 
   body {
@@ -167,7 +169,7 @@
           while (target) {
               if (target.tagName === 'A') {
                   const href = target.getAttribute('href');
-                  if (href && href.startsWith('https://s.shopee.ph/')) {
+                  if (href && href.startsWith('https://')) {
                       window.location.href = href;
                       e.preventDefault();
                       break;
