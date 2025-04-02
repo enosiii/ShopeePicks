@@ -1,23 +1,31 @@
 {
-    "id": "/ShopeePicksv2/",
-    "short_name": "Shopee Picks",
-    "name": "Shopee Picks Collection",
-    "description": "Shopee Picks Collection",
-    "icons": [
-      {
-        "src": "SP192.png",
-        "type": "image/png",
-        "sizes": "192x192"
-      },
-      {
-        "src": "SP512.png",
-        "type": "image/png",
-        "sizes": "512x512"
-      }
-    ],
-    "start_url": "/ShopeePicks/index.html",
-    "background_color": "#f9f9f9",
-    "display": "standalone",
-    "scope": "/ShopeePicks/",
-    "theme_color": "#007bff"
+  "id": "/ShopeePicks/",
+  "short_name": "Shopee Picks",
+  "name": "Shopee Picks Collection",
+  "description": "Best deals from Shopee Philippines",
+  "icons": [
+    {
+      "src": "SP192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "SP512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/index.html",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#4361ee",
+  "prefer_related_applications": true,
+  "related_applications": [
+    {
+      "platform": "play",
+      "id": "com.shopee.ph"
+    }
+  ],
+  "orientation": "portrait"
 }
