@@ -38,16 +38,16 @@
 //   );
 // });
 
-
-const CACHE_NAME = 'ShopeePicks-v2'; // Increment version number for updates
+const CACHE_NAME = 'ShopeePicks-v3';
 const ASSETS_TO_CACHE = [
-  '/ShopeePicks/',
-  '/ShopeePicks/index.html',
-  '/ShopeePicks/SP192.png',
-  '/ShopeePicks/SP512.png'
+  '/',
+  '/index.html',
+  '/SP192.png',
+  '/SP512.png',
+  'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
-// Install the service worker and cache assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -56,42 +56,30 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate the service worker and clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => {
-      console.log('Service worker activated and old caches deleted.');
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Serve cached assets when offline, or fetch from network if not cached
 self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached response if found
-      if (response) {
-        return response;
-      }
+  // Skip Shopee affiliate links
+  if (event.request.url.includes('s.shopee.ph')) {
+    return;
+  }
 
-      // Otherwise, fetch from network
-      return fetch(event.request).then((networkResponse) => {
-        // Cache the fetched response for future offline use
-        return caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request.url, networkResponse.clone()); // Clone for caching
-          return networkResponse;
-        });
-      });
-    })
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        return response || fetch(event.request);
+      })
   );
 });
