@@ -3,51 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shopee Picks</title>
-<link rel="icon" href="SP192.png" type="image/png">
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#007bff">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --primary: #4361ee;
-    --secondary: #3f37c9;
-    --accent: #4895ef;
-    --light: #f8f9fa;
-    --dark: #212529;
-    --success: #4cc9f0;
-    --warning: #f72585;
-    --gray: #6c757d;
-    --light-gray: #e9ecef;
-  }
+  <title>Shopee Picks</title>
+  <link rel="icon" href="SP192.png" type="image/png">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007bff">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --success: #4cc9f0;
+      --warning: #f72585;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+    }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%; 
-    width: 100%;
-    overflow: hidden; 
-  }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%; 
+      width: 100%;
+      overflow: hidden; 
+      font-family: 'Poppins', sans-serif;
+    }
 
-  body {
-    display: flex;
-    flex-direction: column;
-  }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
 
-  iframe {
-    flex-grow: 1;
-    width: 100%;
-    height: 100%; /* Ensure iframe fills available height */
-    border: none;
-  }
+    iframe {
+      flex-grow: 1;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
 
-  .header {
-    background-color: #f0f0f0;
-    padding: 10px;
-    text-align: center;
-  }
+    .header {
+      background-color: #f0f0f0;
+      padding: 10px;
+      text-align: center;
+    }
+
+
+    
 
   button {
     background-color: var(--primary);
@@ -78,8 +81,9 @@
   button:active {
     transform: translateY(0);
   }
+  
 
-  .install-container {
+    .install-container {
     text-align: center;
   }
 
@@ -112,74 +116,148 @@
   #installPWA:active {
     transform: translateY(0);
   }
-</style>
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      font-size: 1.2rem;
+      color: var(--gray);
+    }
+  </style>
 </head>
 <body>
+  <div class="install-container">
+    <button id="installPWA" style="display: block;">
+      <i class="fas fa-download"></i> Add to Home Screen
+    </button>
+  </div>
 
-<div class="install-container">
-  <button id="installPWA" style="display: none;">
-    <i class="fas fa-download"></i> Add to Home Screen
-  </button>
-</div>
+  <iframe id="shopeeFrame" src="https://collshp.com/shopee_picks_sp" title="Shopee Picks SP"></iframe>
+  <div id="loading" class="loading" style="display: none;">
+    <i class="fas fa-spinner fa-spin"></i> Opening Shopee...
+  </div>
 
-<iframe id="shopeeFrame" src="https://collshp.com/shopee_picks_sp" title="Shopee Picks SP"></iframe>
+  <script>
+    // PWA Installation Handling
+    let deferredPrompt;
 
-<script>
-  let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (event) => {
+      event.preventDefault();
+      deferredPrompt = event;
+      document.getElementById('installPWA').style.display = 'inline-flex';
+    });
 
-  window.addEventListener('beforeinstallprompt', (event) => {
-    event.preventDefault();
-    deferredPrompt = event;
-    document.getElementById('installPWA').style.display = 'inline-flex';
-  });
+    document.getElementById('installPWA').addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('PWA installed');
+          }
+          deferredPrompt = null;
+          document.getElementById('installPWA').style.display = 'none';
+        });
+      }
+    });
 
-  document.getElementById('installPWA').addEventListener('click', () => {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
-        if (choiceResult.outcome === 'accepted') {
-          console.log('User accepted PWA installation');
-        } else {
-          console.log('User dismissed PWA installation');
-        }
-        deferredPrompt = null;
-      });
+    window.addEventListener('appinstalled', () => {
+      console.log('PWA installed');
+      document.getElementById('installPWA').style.display = 'none';
+    });
+
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js', { scope: '/' })
+        .then((registration) => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Service Worker registration failed:', error);
+        });
     }
-  });
 
-  window.addEventListener('appinstalled', () => {
-    console.log('PWA installed');
-    document.getElementById('installPWA').style.display = 'none';
-  });
+    // Shopee App Link Handling
+    function openShopeeApp(url) {
+      const loading = document.getElementById('loading');
+      loading.style.display = 'flex';
+      
+      // Android Intent URL
+      const androidIntentUrl = `intent://${url.replace('https://', '')}#Intent;package=com.shopee.ph;scheme=https;end`;
+      
+      // iOS Universal Link or Shopee scheme
+      const iosUrl = url.replace('https://s.shopee.ph', 'shopee://');
+      
+      // Try to open the app directly
+      const openApp = () => {
+        if (/Android/i.test(navigator.userAgent)) {
+          window.location.href = androidIntentUrl;
+        } else {
+          window.location.href = iosUrl;
+        }
+        
+        // Fallback to web after delay
+        setTimeout(() => {
+          if (!document.hidden) {
+            window.location.href = url;
+          }
+        }, 1000);
+      };
+      
+      // For iframes, we need to open in parent
+      if (window.self !== window.top) {
+        window.parent.postMessage({ type: 'openShopee', url: url }, '*');
+      } else {
+        openApp();
+      }
+    }
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' })
-      .then((registration) => {
-        console.log('Service Worker registered with scope:', registration.scope);
-      })
-      .catch((error) => {
-        console.error('Service Worker registration failed:', error);
-      });
-  }
+    // Listen for messages from iframe
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'shopeeClick') {
+        openShopeeApp(event.data.url);
+      }
+    });
 
-  // Add event listener to iframe load to try and capture clicks.
-  document.getElementById('shopeeFrame').addEventListener('load', function(){
-      document.getElementById('shopeeFrame').contentWindow.document.addEventListener('click', function(e){
-          let target = e.target;
-          while (target) {
-              if (target.tagName === 'A') {
-                  const href = target.getAttribute('href');
-                  if (href && href.startsWith('https://')) {
-                      window.location.href = href;
-                      e.preventDefault();
-                      break;
-                  }
+    // Handle clicks on the page
+    document.addEventListener('click', (e) => {
+      let target = e.target;
+      while (target) {
+        if (target.tagName === 'A' && target.href && target.href.includes('s.shopee.ph')) {
+          e.preventDefault();
+          openShopeeApp(target.href);
+          return;
+        }
+        target = target.parentNode;
+      }
+    });
+
+    // Handle iframe load
+    document.getElementById('shopeeFrame').addEventListener('load', function() {
+      try {
+        // Attempt to inject click handler into iframe
+        const script = `
+          document.addEventListener('click', function(e) {
+            let target = e.target;
+            while (target) {
+              if (target.tagName === 'A' && target.href && target.href.includes('s.shopee.ph')) {
+                e.preventDefault();
+                window.parent.postMessage({
+                  type: 'shopeeClick',
+                  url: target.href
+                }, '*');
+                return;
               }
               target = target.parentNode;
-          }
-      });
-  });
-
-</script>
+            }
+          });
+        `;
+        this.contentWindow.postMessage({ type: 'injectScript', script: script }, '*');
+      } catch (e) {
+        console.log('Could not inject script into iframe due to CORS');
+      }
+    });
+  </script>
 </body>
 </html>
